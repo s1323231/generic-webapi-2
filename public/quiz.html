@@ -1,242 +1,216 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Quiz Generator</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="quiz.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💖 Multiple AI Chat（可愛い版）</title>
+<link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Rounded+Mplus+1c:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body {
+    font-family: 'Rounded Mplus 1c', 'Comic Neue', sans-serif;
+    background: linear-gradient(135deg, #ffe6f0, #fff0e6);
+    padding: 20px;
+    color: #333;
+}
+
+h1 {
+    text-align: center;
+    font-size: 2em;
+    color: #ff69b4;
+    margin-bottom: 10px;
+    text-shadow: 1px 1px 3px #fff;
+}
+
+p {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+textarea {
+    width: 100%;
+    height: 80px;
+    font-size: 16px;
+    padding: 10px;
+    border-radius: 12px;
+    border: 2px solid #ffb6c1;
+    outline: none;
+    resize: none;
+    background-color: #fff0f5;
+}
+
+button {
+    margin: 5px 5px 10px 0;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 20px;
+    border: none;
+    background: #ffb6c1;
+    color: white;
+    transition: all 0.2s ease;
+    font-weight: bold;
+}
+
+button:hover {
+    transform: scale(1.05);
+    background: #ff69b4;
+}
+
+.theme-btn {
+    background: #ffb6c1;
+}
+
+.theme-btn:hover {
+    background: #ff69b4;
+}
+
+.result {
+    margin-top: 20px;
+}
+
+.card {
+    background: #fff0f5;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 20px;
+    box-shadow: 0 5px 10px rgba(255,182,193,0.3);
+    animation: fadeIn 0.5s ease forwards;
+}
+
+.ai-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 1.1em;
+}
+
+.score {
+    font-weight: bold;
+    color: #ff1493;
+    margin-bottom: 5px;
+}
+
+.feedback-buttons {
+    margin-top: 10px;
+}
+
+.feedback-buttons button {
+    border-radius: 12px;
+    background: #ff69b4;
+    color: white;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.feedback-buttons button:hover {
+    transform: scale(1.1);
+}
+
+.feedback-buttons .selected {
+    background: #ff1493;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>ITパスポート対策クイズ</h1>
-        </div>
 
-        <div class="quiz-container">
-            <!-- クイズ設定画面 -->
-            <div class="quiz-setup" id="quizSetup">
-                <div class="form-group">
-                    <label for="quizTitle">クイズのタイトル:</label>
-                    <input type="text" id="quizTitle" placeholder="例: ITパスポート対策クイズ" value="ITパスポート対策クイズ">
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="questionCount">問題数:</label>
-                        <input type="number" id="questionCount" min="1" max="20" value="5">
-                    </div>
-                    
-                    <div class="form-group">
-                        <button class="btn" onclick="generateQuiz()">クイズを生成</button>
-                    </div>
-                </div>
-            </div>
+<h1>💖 Multiple AI Chat</h1>
+<p>質問を選ぶか自由に入力して送信してください。参考になった回答には「👍」を押せます。</p>
 
-            <!-- クイズ実行画面 -->
-            <div class="quiz-playing" id="quizPlaying">
-                <div class="quiz-progress" id="quizProgress"></div>
-                <h2 id="quizTitleDisplay"></h2>
-                
-                <div class="question" id="currentQuestion"></div>
-                
-                <ul class="selections" id="selections"></ul>
-                
-                <div class="answer-feedback" id="answerFeedback"></div>
-                
-                <button class="btn" id="nextBtn" onclick="nextQuestion()" style="display: none;">次の問題</button>
-                <button class="btn" id="finishBtn" onclick="showResults()" style="display: none;">結果を見る</button>
-            </div>
+<!-- テーマボタン -->
+<div style="text-align:center; margin-bottom:15px;">
+    <button class="theme-btn" onclick="setQuestion('明日の服装は何がいい？')">服装相談</button>
+    <button class="theme-btn" onclick="setQuestion('就活で自己PRはどう作ればいい？')">就活相談</button>
+    <button class="theme-btn" onclick="setQuestion('効率よく勉強する方法は？')">勉強相談</button>
+    <button class="theme-btn" onclick="setQuestion('恋愛で告白するタイミングは？')">恋愛相談</button>
+</div>
 
-            <!-- 結果画面 -->
-            <div class="quiz-results" id="quizResults">
-                <h2>クイズ結果</h2>
-                <div class="score" id="finalScore"></div>
-                <button class="btn" onclick="restartQuiz()">新しいクイズを作成</button>
-            </div>
-        </div>
+<textarea id="question" placeholder="自由に質問できます"></textarea>
+<br>
+<button onclick="sendQuestion()">質問する</button>
 
-        <div class="status" id="status">Ready</div>
-        <div class="loading" id="loading">クイズを生成中...</div>
-    </div>
+<div class="result" id="result"></div>
 
-    <script>
-        let quizData = [];
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let selectedAnswer = null;
-        let hasAnswered = false;
+<script>
+let aiScores = {}; // AIごとのスコア管理
 
-        // 初期化
-        document.addEventListener('DOMContentLoaded', function() {
-            updateStatus();
+function setQuestion(text) {
+    document.getElementById("question").value = text;
+}
+
+async function sendQuestion() {
+    const question = document.getElementById("question").value.trim();
+    if (!question) {
+        alert("質問を入力してください");
+        return;
+    }
+
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = "<p style='text-align:center; color:#ff69b4;'>考え中…💭</p>";
+
+    try {
+        const response = await fetch("/api/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question: question })
         });
+        const data = await response.json();
+        const answers = data.data;
+        answers.forEach(a => { if (!aiScores[a.ai]) aiScores[a.ai] = 0; });
+        displayAnswers(answers);
+    } catch (err) {
+        resultDiv.innerHTML = "<p style='color:red; text-align:center;'>エラーが発生しました…</p>";
+        console.error(err);
+    }
+}
 
-        // ステータス更新
-        function updateStatus() {
-            const statusEl = document.getElementById('status');
-            statusEl.textContent = 'Ready to generate ITパスポート quiz';
-            statusEl.style.color = '#28a745';
-        }
+function displayAnswers(answers) {
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = "";
 
-        // クイズ生成
-        async function generateQuiz() {
-            const title = document.getElementById('quizTitle').value.trim();
-            const count = parseInt(document.getElementById('questionCount').value);
+    // スコア順に並べ替え
+    answers.sort((a,b) => aiScores[b.ai] - aiScores[a.ai]);
 
-            if (!title || count < 1) {
-                alert('すべての項目を正しく入力してください');
-                return;
-            }
+    answers.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "card";
 
-            document.getElementById('loading').classList.add('show');
+        const aiName = document.createElement("div");
+        aiName.className = "ai-name";
+        aiName.textContent = item.ai;
 
-            try {
-                const response = await fetch('/api/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        title: title,
-                        count: count
-                    })
-                });
+        const scoreDiv = document.createElement("div");
+        scoreDiv.className = "score";
+        scoreDiv.textContent = `👍 ${aiScores[item.ai]}`;
 
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || 'API error');
-                }
+        const text = document.createElement("div");
+        text.textContent = item.response;
 
-                const data = await response.json();
-                quizData = data.data;
-                console.log(data);
+        const buttonsDiv = document.createElement("div");
+        buttonsDiv.className = "feedback-buttons";
 
+        const btn = document.createElement("button");
+        btn.textContent = "👍 参考になった";
+        btn.onclick = () => {
+            aiScores[item.ai]++;
+            scoreDiv.textContent = `👍 ${aiScores[item.ai]}`;
+            btn.classList.add("selected");
+            displayAnswers(answers);
+        };
+        buttonsDiv.appendChild(btn);
 
-                if (!Array.isArray(quizData) || quizData.length === 0) {
-                    console.log(quizData);
-                    throw new Error('Invalid quiz data format');
-                }
+        card.appendChild(aiName);
+        card.appendChild(scoreDiv);
+        card.appendChild(text);
+        card.appendChild(buttonsDiv);
 
-                currentQuestionIndex = 0;
-                score = 0;
-                document.getElementById('quizTitleDisplay').textContent = data.title;
-                startQuiz();
-                
-            } catch (error) {
-                console.error('Error:', error);
-                alert('クイズの生成に失敗しました: ' + error.message);
-            } finally {
-                document.getElementById('loading').classList.remove('show');
-            }
-        }
+        resultDiv.appendChild(card);
+    });
+}
+</script>
 
-        // クイズ開始
-        function startQuiz() {
-            document.getElementById('quizSetup').style.display = 'none';
-            document.getElementById('quizPlaying').style.display = 'block';
-            document.getElementById('quizResults').style.display = 'none';
-            showQuestion();
-        }
-
-        // 問題表示
-        function showQuestion() {
-            if (currentQuestionIndex >= quizData.length) {
-                showResults();
-                return;
-            }
-
-            const question = quizData[currentQuestionIndex];
-            hasAnswered = false;
-            selectedAnswer = null;
-
-            document.getElementById('quizProgress').textContent = 
-                `問題 ${currentQuestionIndex + 1} / ${quizData.length}`;
-            
-            document.getElementById('currentQuestion').textContent = question.question;
-            
-            const selectionsEl = document.getElementById('selections');
-            selectionsEl.innerHTML = '';
-            
-            question.selections.forEach((selection, index) => {
-                const li = document.createElement('li');
-                li.className = 'selection-item';
-                li.textContent = selection;
-                li.onclick = () => selectAnswer(index);
-                selectionsEl.appendChild(li);
-            });
-
-            document.getElementById('answerFeedback').style.display = 'none';
-            document.getElementById('nextBtn').style.display = 'none';
-            document.getElementById('finishBtn').style.display = 'none';
-        }
-
-        // 答え選択
-        function selectAnswer(index) {
-            if (hasAnswered) return;
-
-            selectedAnswer = index;
-            hasAnswered = true;
-
-            const question = quizData[currentQuestionIndex];
-            const correctAnswer = question.answer;
-            const isCorrect = selectedAnswer === correctAnswer;
-
-            if (isCorrect) {
-                score++;
-            }
-
-            const selectionItems = document.querySelectorAll('.selection-item');
-            selectionItems.forEach((item, i) => {
-                item.onclick = null;
-                if (i === correctAnswer) {
-                    item.classList.add('correct');
-                } else if (i === selectedAnswer && !isCorrect) {
-                    item.classList.add('incorrect');
-                }
-            });
-
-            const feedback = document.getElementById('answerFeedback');
-            feedback.style.display = 'block';
-            if (isCorrect) {
-                feedback.className = 'answer-feedback correct';
-                feedback.textContent = '正解！';
-            } else {
-                feedback.className = 'answer-feedback incorrect';
-                feedback.textContent = `不正解。正解は「${question.selections[correctAnswer]}」です。`;
-            }
-
-            if (currentQuestionIndex < quizData.length - 1) {
-                document.getElementById('nextBtn').style.display = 'inline-block';
-            } else {
-                document.getElementById('finishBtn').style.display = 'inline-block';
-            }
-        }
-
-        // 次の問題
-        function nextQuestion() {
-            currentQuestionIndex++;
-            showQuestion();
-        }
-
-        // 結果表示
-        function showResults() {
-            document.getElementById('quizPlaying').style.display = 'none';
-            document.getElementById('quizResults').style.display = 'block';
-            
-            const percentage = Math.round((score / quizData.length) * 100);
-            document.getElementById('finalScore').textContent = 
-                `${score} / ${quizData.length} 問正解 (${percentage}%)`;
-        }
-
-        // クイズリスタート
-        function restartQuiz() {
-            document.getElementById('quizResults').style.display = 'none';
-            document.getElementById('quizSetup').style.display = 'block';
-            quizData = [];
-            currentQuestionIndex = 0;
-            score = 0;
-        }
-    </script>
 </body>
 </html>
