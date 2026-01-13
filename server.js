@@ -23,7 +23,6 @@ try {
 }
 
 
-// const OPENAI_API_ENDPOINT = 'https://api.openai.com/v1/chat/completions';
 const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/';
 
 app.post('/api/', async (req, res) => {
