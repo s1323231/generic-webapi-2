@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 8080;
 app.use(express.json());
 app.use(express.static('public'));
 
+const OPENAI_API_ENDPOINT = "https://openai-api-proxy-746164391621.us-west1.run.app";
 // 設定をコードで定義
 const PROVIDER = 'openai';  // 'openai' or 'gemini'
 const MODEL = 'gpt-4o-mini';  // OpenAI: 'gpt-4o-mini', Gemini: 'gemini-2.5-flash'
@@ -21,7 +22,8 @@ try {
     process.exit(1);
 }
 
-const OPENAI_API_ENDPOINT = 'https://api.openai.com/v1/chat/completions';
+
+// const OPENAI_API_ENDPOINT = 'https://api.openai.com/v1/chat/completions';
 const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/';
 
 app.post('/api/', async (req, res) => {
